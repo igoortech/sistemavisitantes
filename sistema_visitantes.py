@@ -1,4 +1,21 @@
-import os,sqlite3,time,winsound,datetime
+import os,time,winsound,datetime,sqlite3
+
+def numbers(n):
+    while True:
+        x = input(n)
+        if x.isdigit():
+            return x
+        else:
+            print(f'\033[0;31mERRO! SOMENTE VALORES NÚMEROS SÃO PERMITIDOS!!\033[m')
+
+def validarn(name):
+    while True:
+        n = input(name)
+        if n.isalpha() and len(n)>=3:
+            return n
+        else:
+            print(f'\033[0;31mERRO! SOMENTE VALORES ALFA-NÚMERICOS SÃO PERMITIDOS!!\033[m')
+
 
 class visitantes:
     def __init__(self):
@@ -20,7 +37,7 @@ class visitantes:
             cursor.execute("SELECT * FROM visitantes")
             lista = cursor.fetchall()
             for i in lista:
-               if nome in i:
+                if nome in i:
                     print("Esse visitante já possui cadastro!",i)
                     time.sleep(2)
                     update = input("Você desejar atualiza-lo? [S/N]").upper()
@@ -30,7 +47,7 @@ class visitantes:
                         self.doc =i[3] 
                         hora_e_data = int(time.time())
                         self.hora = str(datetime.datetime.fromtimestamp(hora_e_data).strftime('%Y-%m-%d %H:%M:%S'))
-                        self.apt = input("NOVO Apt:").strip().upper()
+                        self.apt = numbers("NOVO Apt:").strip()
                         cursor.execute("""INSERT INTO visitantes\
                                         (nome,empresa, doc,hora,apt)VALUES(?,?,?,?,?)""",\
                                         (self.nome, self.empresa, self.doc, self.hora,self.apt))
@@ -40,12 +57,16 @@ class visitantes:
                         db.commit()
                         db.close
                         self.menu()
-                        break
                     else:
-                        print("Esse visitante não possui cadastro!")
-                        p = input("Você deseja cadastra-lo?")
+                        print("Voltando para o  menu sem alterar nada!")
                         time.sleep(1)
-                        self.cadastrar()
+                        self.menu()
+
+                else:
+                    print("Esse visitante não possui cadastro!")
+                    p = input("Você deseja cadastra-lo?")
+                    time.sleep(1)
+                    self.cadastrar()
         elif nome =="C":
             print("Indo para a tela principal")
             self.menu()
@@ -200,21 +221,32 @@ class visitantes:
         
 
     def deletar(self):
-        print("DELELETAR VISISTANTES CADASTRADOS!")
-        id_visitante = input("Digite o id que deseja apagar:")
-        confirma = input("Você tem certeza que deseja apagar? [S/N]").lower()
-        if confirma =="s":
-            db = sqlite3.connect("conexao")
-            cursor = db.cursor()
-            cursor.execute("DELETE FROM visitantes WHERE id =?",(id_visitante,))
-            db.commit()
-            print("APAGADO COM SUCESSO!")
-            time.sleep(0.5)
-            self.menu()
-        else:
-            print("Voltando para o menu principal")
-            time.sleep(0.5)
-            self.menu()
+        rodando = True
+        while rodando:
+            print("DELELETAR VISISTANTES CADASTRADOS!")
+            id_visitante = input("Digite o id que deseja apagar:")
+            confirma = input("Você tem certeza que deseja apagar? [S/N]").lower()
+            if confirma =="s":
+                db = sqlite3.connect("conexao")
+                cursor = db.cursor()
+                cursor.execute("DELETE FROM visitantes WHERE id =?",(id_visitante,))
+                db.commit()
+                print("APAGADO COM SUCESSO!")
+                time.sleep(0.5)
+                del_more = input("Deseja apagar outro? [S/N]").upper()
+                entrada = del_more[0]
+                if entrada =="S":
+                    continue
+                else:
+                    db.close()
+                    rodando = False
+                    print("Voltando para a tela principal!")
+                    time.sleep(2)
+                    self.menu()
+            else:
+                print("Voltando para o menu principal")
+                time.sleep(0.5)
+                self.menu()
 
     def sair(self):
         confirma = input("Você realmente deseja sair do sistema?").lower()
