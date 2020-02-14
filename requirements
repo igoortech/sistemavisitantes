@@ -1,2 +1,6 @@
-Requesitos para rodar o sistema:
-Para rodar o sistema, é preciso ter python acima da versão 3.0 instalada na maquina.
+requesitos
+python 3.0 ou superior 
+libs:
+
+pip install -r sqlit3
+pip install -r winsound
